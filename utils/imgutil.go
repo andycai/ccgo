@@ -100,6 +100,8 @@ func parseFile(filePath string, dir string) {
 			exportImg(dir+"/"+key, m)
 		}
 	}
+
+	m1 = nil
 }
 
 func exportImg(fileName string, img image.Image) {
@@ -115,5 +117,6 @@ func exportImg(fileName string, img image.Image) {
 		panic(err)
 	}
 
+	img = nil
 	fmt.Printf("generate " + filePath + " ok\n")
 }
