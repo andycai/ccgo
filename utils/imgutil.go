@@ -7,6 +7,7 @@ import (
 	//	"image/color"
 	"image/draw"
 	"image/jpeg"
+	"image/png"
 	"os"
 	"path"
 	"path/filepath"
@@ -14,8 +15,12 @@ import (
 	"strings"
 )
 
+const EXT_JPEG = ".jpg"
+const EXT_PNG = ".png"
+
 var tilex, tiley int
 var zonex, zoney int
+var ext string = EXT_JPEG
 
 func ExportSplitedImage(tokens []string) {
 	if len(tokens) != 4 {
@@ -35,15 +40,13 @@ func ExportSplitedImage(tokens []string) {
 			return nil
 		}
 
-		ext := path.Ext(fileInfo.Name())
+		ext = path.Ext(fileInfo.Name())
 		newDir := dir + "/" + strings.Split(fileInfo.Name(), ".")[0]
 		fmt.Println(newDir)
 
 		switch ext {
-		case ".jpg":
+		case EXT_JPEG, EXT_PNG:
 			parseFile(filePath, newDir)
-			//		case ".png":
-			//
 		}
 
 		return nil
@@ -52,6 +55,24 @@ func ExportSplitedImage(tokens []string) {
 	if err != nil {
 		panic(err)
 	}
+}
+
+func imageEncode(file *os.File, img image.Image) (err error) {
+	if ext == EXT_JPEG {
+		err = jpeg.Encode(file, img, &jpeg.Options{90})
+	} else {
+		err = png.Encode(file, img)
+	}
+	return
+}
+
+func imageDecode(file *os.File) (img image.Image, err error) {
+	if ext == EXT_JPEG {
+		img, err = jpeg.Decode(file)
+	} else {
+		img, err = png.Decode(file)
+	}
+	return
 }
 
 func parseFile(filePath string, dir string) {
@@ -66,7 +87,7 @@ func parseFile(filePath string, dir string) {
 	}
 	defer f1.Close()
 
-	m1, err := jpeg.Decode(f1)
+	m1, err := imageDecode(f1) // jpeg.Decode(f1)
 	if err != nil {
 		panic(err)
 	}
@@ -96,7 +117,7 @@ func parseFile(filePath string, dir string) {
 			draw.Draw(m, rect, m1, pt, draw.Src)
 			// draw.Draw(m, image.Rect(100, 200, 300, 600), m2, image.Pt(250, 60), draw.Src)
 
-			key := fmt.Sprintf("%d_%d.jpg", i, j)
+			key := fmt.Sprintf("%d_%d%s", i, j, ext)
 			exportImg(dir+"/"+key, m)
 		}
 	}
@@ -112,7 +133,7 @@ func exportImg(fileName string, img image.Image) {
 	}
 	defer f.Close()
 
-	err = jpeg.Encode(f, img, &jpeg.Options{90})
+	err = imageEncode(f, img) // jpeg.Encode(f, img, &jpeg.Options{90})
 	if err != nil {
 		panic(err)
 	}
