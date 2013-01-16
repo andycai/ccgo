@@ -46,7 +46,7 @@ func ExportSplitedImage(tokens []string) {
 
 		switch ext {
 		case EXT_JPEG, EXT_PNG:
-			parseFile(filePath, newDir)
+			parseImageFile(filePath, newDir)
 		}
 
 		return nil
@@ -75,7 +75,7 @@ func imageDecode(file *os.File) (img image.Image, err error) {
 	return
 }
 
-func parseFile(filePath string, dir string) {
+func parseImageFile(filePath string, dir string) {
 
 	if !IsDir(dir) {
 		os.Mkdir(dir, os.ModeDir)
