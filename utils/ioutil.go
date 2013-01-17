@@ -9,7 +9,7 @@ import (
 	"strings"
 )
 
-func readLines(path string) (lines []string, err error) {
+func ReadLines(path string) (lines []string, err error) {
 	var (
 		file   *os.File
 		part   []byte
@@ -21,7 +21,8 @@ func readLines(path string) (lines []string, err error) {
 	}
 
 	reader := bufio.NewReader(file)
-	buffer := bytes.NewBuffer(make([]byte, 1024))
+	buffer := bytes.NewBuffer([]byte{})
+	//	buffer := bytes.NewBuffer(make([]byte, 1024))
 
 	for {
 		if part, prefix, err = reader.ReadLine(); err != nil {
@@ -39,7 +40,7 @@ func readLines(path string) (lines []string, err error) {
 	return
 }
 
-func writeLines(lines []string, path string) (err error) {
+func WriteLines(lines []string, path string) (err error) {
 	var file *os.File
 
 	if file, err = os.Create(path); err != nil {
@@ -49,7 +50,29 @@ func writeLines(lines []string, path string) (err error) {
 	defer file.Close()
 
 	for _, elem := range lines {
-		_, err := file.WriteString(strings.TrimSpace(elem) + "\n")
+		_, err := file.WriteString(strings.TrimRight(elem, " ") + "\n")
+		//		_, err := file.WriteString(strings.TrimSpace(elem) + "\n")
+		if err != nil {
+			fmt.Println(err)
+			break
+		}
+	}
+	return
+}
+
+func AppendLines(lines []string, path string) (err error) {
+	//	var file *os.File
+	file, err := os.OpenFile(path, os.O_APPEND|os.O_CREATE, 0644)
+
+	if err != nil {
+		return
+	}
+
+	defer file.Close()
+
+	for _, elem := range lines {
+		_, err := file.WriteString(strings.TrimRight(elem, " ") + "\n")
+		//		_, err := file.WriteString(strings.TrimSpace(elem) + "\n")
 		if err != nil {
 			fmt.Println(err)
 			break
