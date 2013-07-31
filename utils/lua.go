@@ -136,7 +136,8 @@ func luaMakeConfig(moduleName, tPath, ePath string) {
 		return
 	}
 
-	var result []string = []string{"\n"}
+	// var result []string = []string{"\n"}
+	var result []string = []string{}
 	for _, line := range lines {
 		newLine := strings.Replace(line, "{{name}}", moduleName, -1)
 		result = append(result, newLine)
