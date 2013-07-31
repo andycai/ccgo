@@ -55,7 +55,7 @@ func luaMakeMvcs(moduleName, tPath, ePath string) {
 		newLine := strings.Replace(line, "{{name}}", moduleName, -1)
 		newLine = strings.Replace(newLine, "{{time}}", time.Now().Format("2006-03-02"), -1)
 		result = append(result, newLine)
-		fmt.Println(line)
+		// fmt.Println(line)
 	}
 
 	err = WriteLines(result, exportPath)
@@ -83,7 +83,44 @@ func luaMakeView(moduleName string) {
 }
 
 func luaMakeRegister(moduleName string) {
-	luaMakeConfig(moduleName, TEMPLATE_REGISTER, EXPORT_REGISTER)
+	luaUpdateRegister(moduleName, TEMPLATE_REGISTER, EXPORT_REGISTER)
+}
+
+func luaUpdateRegister(moduleName, tPath, ePath string) {
+
+	// read the template file
+	tlines, err := ReadLines(tPath)
+	if err != nil {
+		fmt.Println("Error:%s\n", err)
+		return
+	}
+
+	var templateResult []string
+	for _, tline := range tlines {
+		newLine := strings.Replace(tline, "{{name}}", moduleName, -1)
+		templateResult = append(templateResult, newLine)
+	}
+
+	// read the target file
+	lines, err2 := ReadLines(ePath)
+	if err2 != nil {
+		fmt.Println("Error:%s\n", err2)
+		return
+	}
+
+	var result []string
+	for _, line := range lines {
+		if strings.Contains(line, "{nil};") {
+			newLine := strings.Replace(line, "{nil};", templateResult[0], -1)
+			result = append(result, newLine)
+			result = append(result, "\t{nil};")
+		} else {
+			result = append(result, line)
+		}
+	}
+
+	err = WriteLines(result, ePath)
+	// fmt.Println(err)
 }
 
 func luaMakeInitialization(moduleName string) {
@@ -103,9 +140,9 @@ func luaMakeConfig(moduleName, tPath, ePath string) {
 	for _, line := range lines {
 		newLine := strings.Replace(line, "{{name}}", moduleName, -1)
 		result = append(result, newLine)
-		fmt.Println(line)
+		// fmt.Println(line)
 	}
 
 	err = AppendLines(result, exportPath)
-	fmt.Println(err)
+	// fmt.Println(err)
 }
