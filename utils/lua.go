@@ -15,34 +15,40 @@ const (
 	TEMPLATE_VIEW       string = TEMPLATE_PATH + "view.lua"
 	TEMPLATE_REGISTER   string = TEMPLATE_PATH + "register.lua"
 	TEMPLATE_INIT       string = TEMPLATE_PATH + "initialize.lua"
-	EXPORT_PATH         string = "./protected/"
-	EXPORT_CONTROLLER   string = EXPORT_PATH + "controller/%s.lua"
-	EXPORT_MODEL        string = EXPORT_PATH + "model/%s.lua"
-	EXPORT_SERVICE      string = EXPORT_PATH + "service/%s.lua"
-	EXPORT_VIEW         string = EXPORT_PATH + "view/%s/"
-	EXPORT_REGISTER     string = EXPORT_PATH + "register.lua"
-	EXPORT_INIT         string = EXPORT_PATH + "export.lua"
+	EXPORT_CONTROLLER   string = "/controller/%s.lua"
+	EXPORT_MODEL        string = "/model/%s.lua"
+	EXPORT_SERVICE      string = "/service/%s.lua"
+	EXPORT_VIEW         string = "/view/%s/"
+	EXPORT_REGISTER     string = "/register.lua"
+	EXPORT_INIT         string = "/export.lua"
 )
 
+var appPath = "./app"
+var moduleName = "hello"
+
 func LuaMakeModule(tokens []string) {
-	if len(tokens) != 2 {
-		fmt.Println("Usage: make module_name")
+	if len(tokens) != 2 && len(tokens) != 3 {
+		fmt.Println("Usage: make module_name [app_path]")
 		return
 	}
 
-	moduleName := tokens[1]
+	moduleName = tokens[1]
+	if len(tokens) == 3 {
+		appPath = tokens[2]
+	}
 
-	luaMakeController(moduleName)
-	luaMakeModel(moduleName)
-	luaMakeService(moduleName)
-	luaMakeView(moduleName)
-	luaMakeRegister(moduleName)
-	luaMakeInitialization(moduleName)
-	fmt.Printf("make a module [%s] for lua\n", moduleName)
+	luaMakeMvcs(TEMPLATE_CONTROLLER, EXPORT_CONTROLLER)
+	luaMakeMvcs(TEMPLATE_MODEL, EXPORT_MODEL)
+	luaMakeMvcs(TEMPLATE_SERIVCE, EXPORT_SERVICE)
+	luaMakeView()
+	luaUpdateRegister(TEMPLATE_REGISTER, EXPORT_REGISTER)
+	luaMakeConfig(TEMPLATE_INIT, EXPORT_INIT)
+
+	fmt.Printf("complete for making a module [%s] in [%s] for lua\n", moduleName, appPath)
 }
 
-func luaMakeMvcs(moduleName, tPath, ePath string) {
-	exportPath := fmt.Sprintf(ePath, moduleName)
+func luaMakeMvcs(tPath, ePath string) {
+	exportPath := fmt.Sprintf(appPath+ePath, moduleName)
 	lines, err := ReadLines(tPath)
 
 	if err != nil {
@@ -59,34 +65,18 @@ func luaMakeMvcs(moduleName, tPath, ePath string) {
 	}
 
 	err = WriteLines(result, exportPath)
-	fmt.Println(err)
+	// fmt.Println(err)
 }
 
-func luaMakeController(moduleName string) {
-	luaMakeMvcs(moduleName, TEMPLATE_CONTROLLER, EXPORT_CONTROLLER)
-}
-
-func luaMakeModel(moduleName string) {
-	luaMakeMvcs(moduleName, TEMPLATE_MODEL, EXPORT_MODEL)
-}
-
-func luaMakeService(moduleName string) {
-	luaMakeMvcs(moduleName, TEMPLATE_SERIVCE, EXPORT_SERVICE)
-}
-
-func luaMakeView(moduleName string) {
-	dir := EXPORT_PATH + "view/" + moduleName
+func luaMakeView() {
+	dir := fmt.Sprintf(appPath+EXPORT_VIEW, moduleName)
 	if !IsDir(dir) {
 		os.Mkdir(dir, os.ModeDir)
 	}
-	luaMakeMvcs(moduleName, TEMPLATE_VIEW, fmt.Sprintf(EXPORT_VIEW, moduleName)+"%spane.lua")
+	luaMakeMvcs(TEMPLATE_VIEW, fmt.Sprintf(EXPORT_VIEW, moduleName)+"/%spane.lua")
 }
 
-func luaMakeRegister(moduleName string) {
-	luaUpdateRegister(moduleName, TEMPLATE_REGISTER, EXPORT_REGISTER)
-}
-
-func luaUpdateRegister(moduleName, tPath, ePath string) {
+func luaUpdateRegister(tPath, ePath string) {
 
 	// read the template file
 	tlines, err := ReadLines(tPath)
@@ -102,7 +92,7 @@ func luaUpdateRegister(moduleName, tPath, ePath string) {
 	}
 
 	// read the target file
-	lines, err2 := ReadLines(ePath)
+	lines, err2 := ReadLines(appPath + ePath)
 	if err2 != nil {
 		fmt.Println("Error:%s\n", err2)
 		return
@@ -119,16 +109,12 @@ func luaUpdateRegister(moduleName, tPath, ePath string) {
 		}
 	}
 
-	err = WriteLines(result, ePath)
+	err = WriteLines(result, appPath+ePath)
 	// fmt.Println(err)
 }
 
-func luaMakeInitialization(moduleName string) {
-	luaMakeConfig(moduleName, TEMPLATE_INIT, EXPORT_INIT)
-}
-
-func luaMakeConfig(moduleName, tPath, ePath string) {
-	exportPath := ePath
+func luaMakeConfig(tPath, ePath string) {
+	exportPath := appPath + ePath
 	lines, err := ReadLines(tPath)
 
 	if err != nil {
