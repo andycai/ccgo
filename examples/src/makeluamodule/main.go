@@ -11,7 +11,7 @@ import (
 func main() {
 	fmt.Println(`	
 	Enter the following commands to use:
-	create module_name -- make a lua module using default templates, like "create role"
+	make module_name -- make a lua module using default templates, like "create role [path]"
 	quit | q -- quit the tool
 	`)
 
@@ -31,7 +31,7 @@ func main() {
 		tokens := strings.Split(line, " ")
 
 		switch tokens[0] {
-		case "create":
+		case "make":
 			ccgo.LuaMakeModule(tokens)
 		default:
 			fmt.Println("Unrecognized command: ", tokens[0])
