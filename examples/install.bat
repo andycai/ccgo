@@ -2,18 +2,24 @@
 
 setlocal
 
-if exist make.bat goto ok
-echo make.bat must be run from its folder
+if exist install.bat goto ok
+echo install.bat must be run from its folder
 goto end
 
-: ok
+:ok
+
+if "%1" neq "" goto doit
+echo install.bat project-name
+goto end
+
+:doit
 
 set OLDGOPATH=%GOPATH%
 set GOPATH=%~dp0
 
 gofmt -tabs=true -tabwidth=4 -w src
 
-go install splitimg
+go install %1
 
 :end
 echo finished
