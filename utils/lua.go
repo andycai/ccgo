@@ -1,4 +1,4 @@
-package ccgolua
+package ccgo
 
 import (
 	"fmt"
@@ -26,7 +26,7 @@ const (
 var appPath = "./app"
 var moduleName = "hello"
 
-func LuaMakeModule(tokens []string) {
+func LuaMakeModuleV2(tokens []string) {
 	if len(tokens) != 2 && len(tokens) != 3 {
 		fmt.Println("Usage: make module_name [app_path]")
 		return
@@ -37,17 +37,17 @@ func LuaMakeModule(tokens []string) {
 		appPath = tokens[2]
 	}
 
-	luaMakeMvcs(TEMPLATE_CONTROLLER, EXPORT_CONTROLLER)
-	luaMakeMvcs(TEMPLATE_MODEL, EXPORT_MODEL)
-	luaMakeMvcs(TEMPLATE_SERIVCE, EXPORT_SERVICE)
-	luaMakeView()
-	luaUpdateRegister(TEMPLATE_REGISTER, EXPORT_REGISTER)
-	luaMakeConfig(TEMPLATE_INIT, EXPORT_INIT)
+	luaMakeMvcsV2(TEMPLATE_CONTROLLER, EXPORT_CONTROLLER)
+	luaMakeMvcsV2(TEMPLATE_MODEL, EXPORT_MODEL)
+	luaMakeMvcsV2(TEMPLATE_SERIVCE, EXPORT_SERVICE)
+	luaMakeViewV2()
+	luaUpdateRegisterV2(TEMPLATE_REGISTER, EXPORT_REGISTER)
+	luaMakeConfigV2(TEMPLATE_INIT, EXPORT_INIT)
 
 	fmt.Printf("complete for making a module [%s] in [%s] for lua\n", moduleName, appPath)
 }
 
-func luaMakeMvcs(tPath, ePath string) {
+func luaMakeMvcsV2(tPath, ePath string) {
 	exportPath := fmt.Sprintf(appPath+ePath, moduleName)
 	lines, err := ReadLines(tPath)
 
@@ -68,15 +68,15 @@ func luaMakeMvcs(tPath, ePath string) {
 	// fmt.Println(err)
 }
 
-func luaMakeView() {
+func luaMakeViewV2() {
 	dir := fmt.Sprintf(appPath+EXPORT_VIEW, moduleName)
 	if !IsDir(dir) {
 		os.Mkdir(dir, os.ModeDir)
 	}
-	luaMakeMvcs(TEMPLATE_VIEW, fmt.Sprintf(EXPORT_VIEW, moduleName)+"/%spane.lua")
+	luaMakeMvcsV2(TEMPLATE_VIEW, fmt.Sprintf(EXPORT_VIEW, moduleName)+"/%spane.lua")
 }
 
-func luaUpdateRegister(tPath, ePath string) {
+func luaUpdateRegisterV2(tPath, ePath string) {
 
 	// read the template file
 	tlines, err := ReadLines(tPath)
@@ -113,7 +113,7 @@ func luaUpdateRegister(tPath, ePath string) {
 	// fmt.Println(err)
 }
 
-func luaMakeConfig(tPath, ePath string) {
+func luaMakeConfigV2(tPath, ePath string) {
 	exportPath := appPath + ePath
 	lines, err := ReadLines(tPath)
 
