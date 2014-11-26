@@ -11,7 +11,7 @@ import (
 func main() {
 	fmt.Println(`	
 	Enter the following commands to use:
-	make module_name -- make a lua module using default templates, like "create role [path]"
+	make module_name -- make a lua module using default templates, like "make role [path]"
 	quit | q -- quit the tool
 	`)
 
