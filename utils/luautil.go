@@ -51,7 +51,7 @@ func LuaMakeModule(tokens []string) {
 func luaMakeMvcs(tPath, ePath string) {
 	dir := fmt.Sprintf(appPath+V3_EXPORT_MODULE, moduleName)
 	if !IsDir(dir) {
-		os.Mkdir(dir, os.ModeDir)
+		os.Mkdir(dir, 0666)
 	}
 
 	exportPath := fmt.Sprintf(appPath+ePath, moduleName, moduleName)
